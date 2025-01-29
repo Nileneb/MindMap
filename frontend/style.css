@@ -1,0 +1,74 @@
+/* 🎨 Allgemeines Styling */
+body {
+    background-color: #fafafa;
+    font-family: 'Arial', sans-serif;
+}
+
+/* 🟢 Sidebar Styling */
+.sidebar .sidebar-content {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+}
+
+/* 🟠 Styling für Buttons */
+.stButton>button {
+    background-color: #ff6f61;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    padding: 8px 16px;
+}
+
+/* 💬 Chatbot Styling */
+.floating-chat {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    max-height: 500px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.chat-header {
+    background: #4CAF50;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.chat-body {
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.chat-footer {
+    padding: 10px;
+    background: #f1f1f1;
+    display: flex;
+    gap: 5px;
+}
+
+.chat-input {
+    flex-grow: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.send-btn {
+    padding: 5px 10px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}

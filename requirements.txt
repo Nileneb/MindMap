@@ -1,0 +1,8 @@
+streamlit
+streamlit-elements
+graphviz
+requests
+
+streamlit-extras 
+streamlit-shadcn-ui 
+streamlit-elements 

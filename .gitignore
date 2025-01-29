@@ -1,0 +1,27 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Distribution / build
+build/
+dist/
+*.egg-info/
+
+# Misc
+.DS_Store
+.idea/
+
+.db
+
+# DataFolder
+/data
+/faiss_index
+/docs
+
+# LogFolder 
+/logs

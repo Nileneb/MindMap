@@ -1,0 +1,1 @@
+streamlit run Main.py --server.port 7742

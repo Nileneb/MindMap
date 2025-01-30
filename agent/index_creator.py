@@ -1,8 +1,8 @@
 import os
-from langchain.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-
+from config import FILE_EXTENSIONS_LIST
 
 # 📂 **Ordner mit Skripten und Dokumenten**
 DOCUMENTS_DIR = (None)
@@ -13,7 +13,7 @@ def create_document_index(DOCUMENTS_DIR):
     # ✅ **Alle relevanten Dateien sammeln**
     documents = []
     for file in os.listdir(DOCUMENTS_DIR):
-        if file.endswith((".md", ".txt", ".json", ".py")):  # Wähle relevante Formate
+        if file.endswith(tuple(FILE_EXTENSIONS_LIST)):  
             file_path = os.path.join(DOCUMENTS_DIR, file)
             loader = TextLoader(file_path)
             documents.extend(loader.load())  # Dateiinhalt einlesen

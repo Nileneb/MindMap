@@ -1,13 +1,25 @@
 import streamlit as st
+from streamlit_file_browser import st_file_browser
 from core.utils import logger
 from core.app_handler import AppHandler
-#from config import stylesheet, filepath, AVAILABLE_SHAPES, layout
-from frontend.llm import render_chat_window
+#from frontend.llm import render_chat_window
+# from core.utils import load_css
+# Style
+from streamlit_extras.stylable_container import stylable_container
+# Jupyter
+from streamlit_extras.jupyterlite import jupyterlite
 
+# from frontend.dashboard import render_dashboard, render_folder_selection_sidebar, show_mindmap, show_charts, show_files, show_preview
+
+# Define variables at module level
+show_mindmap = True
+show_charts = True
+show_files = True
+show_preview = True
+show_chat = True
 
 def render_sidebar(app_handler):
     st.sidebar.title("Mindmap Einstellungen")
-    
     selected_elements = app_handler.get_selected_elements()
     selected_nodes = selected_elements.get("nodes", [])
     selected_edges = selected_elements.get("edges", [])
@@ -54,7 +66,61 @@ def render_sidebar(app_handler):
     else:
         st.sidebar.write("Keine Kanten ausgewählt.")
 
-    st.sidebar.button("Add_Node", key="add_node")
+    st.sidebar.subheader("Add Node")
+    with st.popover("Add_Node", icon=":material/chat:", help="Adding a Node"):
+        st.write("Mögliche Node-Attribute:", app_handler.node_attributes)    
+        st.markdown("### 🤖 Add Node")
+        
+        new_label = st.text_input("Label für neuen Node", "")
+        if st.button("Knoten hinzufügen"):
+            node_data = {"data": {"id": new_label, "label": new_label}}
+            app_handler.add_node(node_data)
+            st.rerun()
 
+    st.sidebar.subheader("Add Edge")
+    with st.popover("Add_Edge", icon=":material/thumb_up:", help="Add a new edge"):
+        st.markdown("### 🔗 Add Edge")
+        all_nodes = [node["data"]["id"] for node in app_handler.state["nodes"]]
+        source = st.selectbox("Source", all_nodes, key="edge_source")
+        target = st.selectbox("Target", all_nodes, key="edge_target")
+        edge_label = st.text_input("Label (optional)", "", key="edge_label_input")
+        if st.button("Kante hinzufügen", key="edge_add_btn"):
+            edge_data = {
+                "data": {
+                    "id": f"{source}-{target}",
+                    "source": source,
+                    "target": target
+                }
+            }
+            if edge_label:
+                edge_data["data"]["label"] = edge_label
+            app_handler.add_edge(edge_data)
+            st.rerun()
+
+    st.sidebar.subheader("jupyterlab")
+    
+    if st.sidebar.button("Jupyterlab öffnen"):
+        jupyterlite(800, 600)
+        st.write("Hier können Sie auf jupyterlab zugreifen")
+    
+    with st.sidebar:
+        st.header("🔧 Einstellungen")
+
+        global show_mindmap
+        global show_charts
+        global show_files
+        global show_preview
+        global show_chat
+
+        # Variablen in Session speichern
+        st.session_state["show_mindmap"] = st.checkbox("🌍 Mindmap anzeigen", value=st.session_state.get("show_mindmap", True))
+        st.session_state["show_charts"] = st.checkbox("📊 Matplotlib-Diagramme anzeigen", value=st.session_state.get("show_charts", True))
+        st.session_state["show_files"] = st.checkbox("📂 File Browser anzeigen", value=st.session_state.get("show_files", True))
+        st.session_state["show_preview"] = st.checkbox("📝 Datei Vorschau anzeigen", value=st.session_state.get("show_preview", True))
+        st.session_state["show_chat"] = st.checkbox("💬 Chat anzeigen", value=st.session_state.get("show_chat", True))
+
+        #st.subheader("📁 Datei-Explorer")
+        #event = st_file_browser(path="./", key="file_browser_sidebar", show_choose_folder=True)
+        #st.write(event)
 
 

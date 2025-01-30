@@ -1,16 +1,19 @@
 import json
 import psycopg2
 import os
+from dotenv import load_dotenv  # Add this import
+
+load_dotenv()  # Load environment variables
 
 def save_mindmap(json_path, mindmap_id):
     """Speichert eine Mindmap aus einer JSON-Datei in PostgreSQL."""
     
     # ✅ Verbindung zur PostgreSQL-Datenbank aufbauen
     conn = psycopg2.connect(
-        dbname="mindmap",
-        user="mindmap_user",
-        password="md7umo2c",
-        host="localhost"
+        dbname=os.getenv("dbname"),
+        user=os.getenv("user"),
+        password=os.getenv("password"),
+        host=os.getenv("host")
     )
     cursor = conn.cursor()
 

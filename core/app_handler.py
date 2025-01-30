@@ -168,6 +168,10 @@ class AppHandler:
         """Initialisiert den Session State für die ausgewählten Elemente."""
         if "selected_elements" not in st.session_state:
             st.session_state["selected_elements"] = {"nodes": [], "edges": []}
+        
+        # Initialize conversation in session state
+        if "conversation" not in st.session_state:
+            st.session_state.conversation = []
 
     # Parsing-Helfer
     def save_tree_to_json(self, tree):

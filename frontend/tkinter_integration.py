@@ -1,14 +1,23 @@
 import os
-import tkinter as tk
-from tkinter import filedialog
 import streamlit as st
 from core.proj_scanner import parse_folder_to_tree, save_tree_to_json
+import tempfile
 
+ 
 
 
 def render_folder_selection_sidebar(app_handler):
     """Erstellt das UI für die Ordnerauswahl (headless-kompatibel)."""
-    st.sidebar.subheader("Ordner auswählen")
+    st.sidebar.subheader("📂 Datei hochladen")
+    uploaded_file = st.sidebar.file_uploader("Wähle eine Datei", type=["json", "txt", "csv", "py"])
+    if uploaded_file:    
+        temp_dir = tempfile.gettempdir()
+        temp_file_path = os.path.join(temp_dir, uploaded_file.name)
+        with open(temp_file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+    
+        st.session_state["uploaded_file_path"] = temp_file_path
+        st.sidebar.success(f"Datei gespeichert unter: {temp_file_path}")
 
     # Eingabe für den Input-Folder
     input_folder = st.text_input("Input-Ordner auswählen:", value="", placeholder="Pfad zum Ordner eingeben")

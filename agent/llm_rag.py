@@ -1,4 +1,5 @@
 import re
+import os
 from langchain_ollama import OllamaLLM
 from langchain_community.utilities import SQLDatabase
 from langchain_core.prompts import PromptTemplate
@@ -11,9 +12,18 @@ from langchain_community.embeddings import HuggingFaceEmbeddings # Use an embedd
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 
+#Graph
+import matplotlib.pyplot as plt
+import pandas as pd
+import networkx as nx
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class ChatLLM:
-    def __init__(self, model_name="hf.co/LoupGarou/deepseek-coder-6.7b-instruct-pythagora-v3-gguf:Q4_K_M", db_uri="postgresql://mindmap_user:md7umo2c@localhost:5432/mindmap", document_path=None, faiss_index_path=None ):
+    def __init__(self, model_name=os.getenv("model_name"),
+                 db_uri=os.getenv("db_uri"), 
+                 document_path=None, faiss_index_path=None ):
         # Initialize LLM and database
         self.llm = OllamaLLM(model=model_name, base_url="http://127.0.0.1:11434/")
         self.db = SQLDatabase.from_uri(db_uri)
@@ -24,25 +34,24 @@ class ChatLLM:
 
         # Store the database description
         self.database_description = """
-            The database consists of two tables: `nodes` and `edges`. This is a PostgreSQL database.
+            The database consists of two tables: `"public"."nodes"` and `"public"."edges"`. This is a PostgreSQL database.
 
-            The `nodes` table contains:
-            - `id`: A unique identifier for each node (auto-increment).
-            - `label`: The label of the node.
-            - `mindmap_id`: The ID of the associated mindmap.
+            The `"public"."nodes"` table contains:
+            - `"id"`: A unique identifier for each node (auto-increment, `SERIAL`).
+            - `"label"`: The label of the node (`TEXT`).
+            - `"mindmap_id"`: The ID of the associated mindmap (`TEXT`).
 
-            The `edges` table contains:
-            - `id`: A unique identifier for each edge (auto-increment).
-            - `source`: The ID of the source node (references `nodes.id`).
-            -`target`: The ID of the target node (references `nodes.id`).
-            - `mindmap_id`: The ID of the associated mindmap.
+            The `"public"."edges"` table contains:
+            - `"id"`: A unique identifier for each edge (auto-increment, `SERIAL`).
+            - `"source"`: The ID of the source node (`INTEGER`), references `"public"."nodes"("id")`.
+            - `"target"`: The ID of the target node (`INTEGER`), references `"public"."nodes"("id")`.
+            - `"mindmap_id"`: The ID of the associated mindmap (`TEXT`).
 
             Foreign keys:
-            - `edges.source` and `edges.target` reference `nodes.id`.
+            - `"public"."edges"."source"` and `"public"."edges"."target"` reference `"public"."nodes"."id"`.
 
             Use standard PostgreSQL queries.
             """
-
 
 
         self.sql_prompt = PromptTemplate(
@@ -95,31 +104,43 @@ class ChatLLM:
         self.plot_code_prompt = PromptTemplate(
             input_variables=["sql_result", "question"],
             template="""
-        Given the following SQL query result and the user's question, generate Python code using matplotlib and pandas to plot the graph that answers the question. Use the data in the SQL result to create the plot. The SQL result is provided as a variable 'sql_result', which is a list of dictionaries. You can convert it into a pandas DataFrame for plotting. Ensure the code is syntactically correct and uses proper labels and titles.
+            Given the SQL result and user's question, generate **correct** Python code to plot the data.
 
-        SQL Result:
-        {sql_result}
+            - Use `matplotlib` for standard charts.
+            - Use `networkx` if the data represents a graph (nodes + edges).
+            - Ensure the code is syntactically correct.
+            - **Do NOT include plt.show()**.
+            - Always define `fig, ax = plt.subplots()` if using matplotlib.
+    
+            SQL Result:
+            {sql_result}
 
-        Question:
-        {question}
+            Question:
+            {question}
 
-        Provide only the code, without any explanations or additional text.
+            Python Code:
+            ```python
+            import matplotlib.pyplot as plt
+            import pandas as pd
+            import networkx as nx
+    
+            fig, ax = plt.subplots(figsize=(10, 6))
 
-        Python code:
-        import matplotlib.pyplot as plt
-        import pandas as pd
+            if isinstance(sql_result, list) and sql_result and "source" in sql_result[0] and "target" in sql_result[0]:
+                G = nx.Graph()
+                for edge in sql_result:
+                    G.add_edge(edge["source"], edge["target"])
 
-        # Assuming sql_result is a list of dictionaries
-        df = pd.DataFrame(sql_result)
+                pos = nx.spring_layout(G)
+                nx.draw(G, pos, with_labels=True, node_color="skyblue", node_size=1500, font_weight="bold", ax=ax)
+            else:
+                df = pd.DataFrame(sql_result)
+                df.plot(kind='bar', ax=ax)
 
-        # Create the figure and axis objects
-        fig, ax = plt.subplots(figsize=(10, 6))
-
-        # Your plotting code here using 'ax'
-
-        # Do not call plt.show()
-        """
+            ```
+            """
         )
+
 
         # Create a prompt for classification
         self.classification_prompt = PromptTemplate.from_template(
@@ -151,25 +172,37 @@ class ChatLLM:
 
         # Create the LLM chain
         self.chain = self._create_chain()
+        
+        self.faiss_index_path = faiss_index_path  # Dynamischer Indexpfad
+        self.vectorstore = None
+        self.retriever = None
+        if self.faiss_index_path:
+            self.vectorstore = FAISS.load_local(self.faiss_index_path, HuggingFaceEmbeddings())
+            self.retriever = self.vectorstore.as_retriever()
+        
         self.document_path = document_path if document_path else []
          # Load the text document if provided
-        if document_path:
-            # Load the document
-            loader = TextLoader(document_path)
-            documents = loader.load()
+        if self.document_path and not self.faiss_index_path:
+            documents = []
+            if isinstance(self.document_path, list):
+                for path in self.document_path:
+                    loader = TextLoader(path)
+                    documents.extend(loader.load())
+            else:
+                loader = TextLoader(self.document_path)
+                documents = loader.load()
 
-            # Create embeddings and vectorstore
-            embeddings = HuggingFaceEmbeddings()
-            vectorstore = FAISS.from_documents(documents, embeddings)
-
-            # Create a retriever
-            retriever = vectorstore.as_retriever()
+            if documents:
+                # Create embeddings and vectorstore
+                embeddings = HuggingFaceEmbeddings()
+                self.vectorstore = FAISS.from_documents(documents, embeddings)
+                self.retriever = self.vectorstore.as_retriever()
 
             # Create a RetrievalQA chain
             self.retrieval_qa_chain = RetrievalQA.from_chain_type(
                 llm=self.llm,
                 chain_type="stuff",
-                retriever=retriever,
+                retriever=self.retriever,
                 return_source_documents=True
             )
         else:
@@ -267,22 +300,29 @@ class ChatLLM:
         
         def execute_plot_code(code, sql_result):
             # Create a local namespace for exec()
-            local_vars = {'sql_result': sql_result}
+            local_vars = {
+                'sql_result': sql_result,
+                'pd': pd,
+                'plt': plt,
+                'nx': nx
+                }
+            if not sql_result:  # ✅ Keine Daten? Kein Diagramm generieren
+                print("⚠️ Kein SQL-Ergebnis, daher wird kein Diagramm generiert.")
+                return None
             try:
                 exec(code, {}, local_vars)
                 fig = local_vars.get('fig', None)
                 if fig is None:
-                    # Attempt to retrieve 'fig' if not directly assigned
-                    fig = local_vars.get('plt', None)
-                    if fig and hasattr(fig, 'gcf'):
-                        fig = fig.gcf()
+                    fig = plt.gcf()
+                    
                 if fig:
-                    self.figures.append(fig)
+                    self.figures.append(fig) # Speichern für Anzeige in Streamlit
                 else:
-                    print("No figure object 'fig' was created in the plot code.")
-            except Exception as e:
-                print(f"Error executing plot code: {e}")
+                    print("⚠️ Kein Figure-Objekt wurde erstellt.")
 
+            except Exception as e:
+                print(f"❌ Fehler beim Ausführen des Plot-Codes: {e}")
+        
         # Function to add context before generating the final answer
         def add_context(inputs):
             chat_history = self.memory.load_memory_variables({}).get('chat_history', '')
@@ -346,3 +386,5 @@ class ChatLLM:
         self.memory.save_context({"question": question}, {"answer": response})
 
         return response
+    
+    #  To use it run `pip install -U :class:`~langchain-huggingface` and import as `from :class:`~langchain_huggingface import HuggingFaceEmbeddings``.

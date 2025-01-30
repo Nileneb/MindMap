@@ -1,7 +1,19 @@
 
 
 # Pfad-Konfiguration
-filepath = ("data/Backup/python_basic.json")
+WORKING_DIR = ("data/Projects")
+
+filepath = ("data/Projects", "Projectname")
+
+faiss_index_path = "faiss_index" # gewünscht + projectname
+document_path=None,
+#utils.py
+#filepattern = "data/Backup/*.json" (Suchmuster für JSON-Dateien)
+#selected_file = st.selectbox("Verfügbare JSON-Dateien:", filenames) (Dateiauswahl über Streamlit
+
+
+
+
 layout = {
     "name": "cose",
     "fit": True,
@@ -40,4 +52,27 @@ stylesheet = [
         }
     }
 ]
+MINDMAP_SCHEMA = {
+    "root": {"color": "#f44336", "shape": "rectangle"},  # 🔴 Root-Folder hebt sich ab
+    "folder": {"color": "#90caf9", "shape": "rectangle"},
+    "file": {"color": "#e57373", "shape": "ellipse"},
+}
 
+FILE_EXTENSIONS = {
+    ".py": {"color": "#9CF18A"},
+    ".json": {"color": "#81c784"},
+    ".txt": {"color": "#ffb74d"},
+    ".md": {"color": "#9575cd"},
+    ".sh": {"color": "#ff9800"},
+    ".html": {"color": "#f44336"},
+    ".css": {"color": "#3f51b5"},
+    ".js": {"color": "#ffeb3b"},
+}
+
+# Falls ein Skript nur die Endungen (ohne Farben) braucht:
+FILE_EXTENSIONS_LIST = list(FILE_EXTENSIONS.keys())
+
+        
+# Elements= Daten INHALT
+# stylesheet= Stylesheet WIE werden daten dargestellt
+# layout= WIE werden daten angeordnet

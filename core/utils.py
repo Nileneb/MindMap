@@ -5,9 +5,11 @@ from datetime import datetime
 #loader
 import glob
 # Pfad für JSON-Dateien
-filepattern = "data/Backup/*.json"
+from config import MINDMAPS_DIR
 import streamlit as st
 
+
+filepattern = os.path.join(MINDMAPS_DIR, "*.json")
 
 log_dir = "logs"  # Could also pull from config.py if you prefer
 if not os.path.exists(log_dir):

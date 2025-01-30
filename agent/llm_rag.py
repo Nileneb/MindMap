@@ -11,19 +11,20 @@ from langchain_community.document_loaders import TextLoader
 from langchain_community.embeddings import HuggingFaceEmbeddings # Use an embedding model compatible with your setup
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
+from config import UPLOADS_DIR, FAISS_INDEX_DIR
 
 #Graph
 import matplotlib.pyplot as plt
 import pandas as pd
 import networkx as nx
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 
 class ChatLLM:
     def __init__(self, model_name=os.getenv("model_name"),
                  db_uri=os.getenv("db_uri"), 
-                 document_path=None, faiss_index_path=None ):
+                 document_path=UPLOADS_DIR, faiss_index_path=FAISS_INDEX_DIR ):
         # Initialize LLM and database
         self.llm = OllamaLLM(model=model_name, base_url="http://127.0.0.1:11434/")
         self.db = SQLDatabase.from_uri(db_uri)

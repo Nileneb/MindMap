@@ -2,7 +2,15 @@ streamlit
 streamlit-elements
 graphviz
 requests
-
+langchain_community
 streamlit-extras 
 streamlit-shadcn-ui 
-streamlit-elements 
+streamlit-elements
+python-dotenv>=0.19.0
+streamlit_extras
+st_cytoscape
+sentence-transformers
+langchain_ollama
+streamlit
+streamlit-file-browser  #(git clone git@github.com:pragmatic-streamlit/streamlit-file-browser.git)
+#streamlit-scrollable-textbox

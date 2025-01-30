@@ -2,6 +2,7 @@ import os
 import json
 import streamlit as st
 from core.utils import logger
+from config import MINDMAPS_DIR
 
 @st.cache_data
 def load_json_from_filepath(filepath):
@@ -36,7 +37,7 @@ def extract_attributes_from_stylesheet(stylesheet, selector):
 
 class AppHandler:
     def __init__(self, filepath, stylesheet, layout):
-        self.filepath = filepath
+        self.filepath = MINDMAPS_DIR
         self.stylesheet = stylesheet
         self.layout = layout
         self.state = {"nodes": [], "edges": []}

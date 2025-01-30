@@ -7,32 +7,25 @@ import json
 import os
 from core.utils import logger
 from core.app_handler import AppHandler
-# from config import filepath, stylesheet, layout
-from frontend.Sidebar import show_mindmap, show_charts, show_files, show_preview,  show_chat
+from frontend.Sidebar import show_mindmap, show_charts, show_files, show_preview, show_chat
 from agent.llm_rag import ChatLLM
+from config import UPLOADS_DIR
 
 chat_llm = ChatLLM()
 
-
-
 def render_dashboard(app_handler):
     elements = st.session_state.get("cytoscape_update", app_handler.get_elements())
-    
-    #stylable_container = st.container()
+
     show_mindmap = st.session_state.get("show_mindmap", True)
     show_charts = st.session_state.get("show_charts", True)
     show_files = st.session_state.get("show_files", True)
     show_preview = st.session_state.get("show_preview", True)
 
-    # 🎯 **Dashboard in drei Abschnitten**
-    
-    header_col1, header_col2 = st.columns([3, 2])  # Sidebar und Hauptansicht
-    main_col1, main_col2 = st.columns([3, 2])  # Hauptansicht für Inhalte
-    footer_col1, footer_col2 = st.columns([1, 1])  # Zusätzliche Infos
-    #footer_col3 = st.columns(1)  # Chat-Verlauf
-    st.write("container")
-    
-    
+    # 🎯 **Dashboard Layout**
+    header_col1, header_col2 = st.columns([3, 2])
+    main_col1, main_col2 = st.columns([3, 2])
+    footer_col1, footer_col2 = st.columns([1, 1])
+
     if show_mindmap:
         with main_col1:
             st.subheader("🌍 Mindmap")
@@ -46,27 +39,22 @@ def render_dashboard(app_handler):
             )
             logger.info(f"Ausgewählte Elemente von Cytoscape: {selected_elements}")
             app_handler.set_selected_elements(selected_elements)
-
-            # Debugging: Zeige ausgewählte Elemente
-            #st.subheader("Ausgewählte Elemente")
-            #st.write("Knoten:")
-            #st.json(app_handler.get_selected_elements()["nodes"])
-            #st.write("Kanten:")
             st.json(app_handler.get_selected_elements()["edges"])
             st.subheader(f"Debugging - Anzahl Elemente: {len(elements)}")
-    
-    # 📂 **File Browser (kleiner)**
+
+    # 📂 **File Browser (Fixes)**
+    selected_file = None  # Standardwert setzen
     if show_files:
         with main_col2:
             st.subheader("📂 Dateien durchsuchen")
             try:
-                event = st_file_browser(path=app_handler, show_files=True, key="A", show_choose_folder=True, use_static_file_server=True)
-                st.write(event)
+                #filepath = "filepath"  # Replace with your default path or environment variable name
+                event = st_file_browser(path=UPLOADS_DIR, key="A", show_choose_folder=True, use_static_file_server=True)
                 selected_file = event.get("selected_file", None)
             except Exception as e:
                 logger.error(f"❌ Fehler beim Dateibrowser: {e}")
-                
-    # 📝 **Datei Vorschau (kleiner)**
+
+    # 📝 **Datei Vorschau (Fixes)**
     if show_preview:
         with footer_col1:
             st.subheader("📝 Datei Vorschau")
@@ -87,37 +75,33 @@ def render_dashboard(app_handler):
             ax.plot([1, 2, 3, 4], [10, 20, 25, 30], marker="o")
             ax.set_title("Beispiel-Plot")
             st.pyplot(fig)
+
             if hasattr(chat_llm, "figures") and chat_llm.figures:
                 st.subheader("Generated Charts")
                 for fig in chat_llm.figures:
                     st.pyplot(fig)
                 chat_llm.figures.clear()
-   
+
+    # 💬 **Chat-Funktion**
     if show_chat:
         with footer_col2:
-            # ✅ **Chat-Verlauf anzeigen**
-            for speaker, message in st.session_state.conversation:
+            for speaker, message in st.session_state.get("conversation", []):
                 if speaker == "You":
                     st.markdown(f'<p><strong>You:</strong> {message}</p>', unsafe_allow_html=True)
                 else:
                     st.markdown(f'<p style="color:green;"><strong>Bot:</strong> {message}</p>', unsafe_allow_html=True)
 
-            # ✅ **Falls ein Diagramm vorhanden ist, rendern**
             if hasattr(chat_llm, "figures") and chat_llm.figures:
                 for fig in chat_llm.figures:
                     st.pyplot(fig)
-                chat_llm.figures.clear()  # Nach der Anzeige leeren, um doppeltes Rendern zu vermeiden
-                
-            # ✅ **Chat-Eingabe**
+                chat_llm.figures.clear()
+
             with st.form("chat_form", clear_on_submit=True):
                 user_input = st.text_input("Nachricht eingeben:", key="chat_input")
                 submitted = st.form_submit_button("Senden")
 
                 if submitted and user_input:
                     response = chat_llm.get_response(user_input)
-                    st.session_state.conversation.append(("You", user_input))
-                    st.session_state.conversation.append(("Bot", response))
+                    st.session_state.setdefault("conversation", []).append(("You", user_input))
+                    st.session_state.setdefault("conversation", []).append(("Bot", response))
                     st.rerun()
-
-
-

@@ -5,14 +5,22 @@ from core.utils import logger
 from core.validator import validate_cytoscape_data
 from core.db_connector import save_mindmap
 from agent.index_creator import create_document_index
-from config import MINDMAP_SCHEMA, FILE_EXTENSIONS, UPLOADS_DIR, FAISS_INDEX_DIR
+from config import FILE_EXTENSIONS, MINDMAP_SCHEMA 
+
+#input_folder = os.path.join("data", "uploads")
+#output_folder = UPLOADS_DIR
+FAISS_INDEX_DIR = "faiss_index"  # Changed from "/faiss_index" to "faiss_index"
 
 def parse_folder_to_tree(folder_path: str) -> dict:
     """Erstellt eine hierarchische Mindmap mit FAISS-Index für Inhalte."""
-    if not os.path.isdir(folder_path):
+    input_folder = folder_path
+    UPLOADS_DIR = folder_path   
+    
+    if not os.path.isdir(UPLOADS_DIR):
         raise ValueError(f"❌ Ungültiger Ordner: {folder_path}")
 
     nodes, edges, node_ids = [], [], set()
+    faiss_index_paths = FAISS_INDEX_DIR
     faiss_index_paths = {}
 
     # CHUNK 1: Ordner als Hauptknoten indexieren
@@ -64,8 +72,8 @@ def parse_folder_to_tree(folder_path: str) -> dict:
             })
 
             # CHUNK 3: Datei-Inhalt vektorisieren und als FAISS-Index speichern
-            if file_ext in FILE_EXTENSIONS.get(file_ext, {}).get("color", "#9e9e9e"):  #mit color??
-                faiss_path = create_document_index(file_id)
+            if file_ext in FILE_EXTENSIONS:  #NO-color
+                faiss_path = create_document_index(folder_path, file_name)
                 if faiss_path:
                     faiss_index_paths[file_id] = faiss_path
 

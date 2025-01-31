@@ -2,7 +2,7 @@ import os
 import json
 import streamlit as st
 from core.utils import logger
-from config import MINDMAPS_DIR
+
 
 @st.cache_data
 def load_json_from_filepath(filepath):
@@ -36,10 +36,13 @@ def extract_attributes_from_stylesheet(stylesheet, selector):
 
 
 class AppHandler:
-    def __init__(self, filepath, stylesheet, layout):
-        self.filepath = MINDMAPS_DIR
+    def __init__(self, filepath, stylesheet, layout, project_name):
+        if not os.path.isdir(filepath):
+            raise ValueError(f"❌ Der Pfad {filepath} ist kein gültiges Verzeichnis.")
+        self.filepath = filepath
         self.stylesheet = stylesheet
         self.layout = layout
+        self.project_name = project_name
         self.state = {"nodes": [], "edges": []}
         self.node_attributes = extract_attributes_from_stylesheet(stylesheet, "node")
         self.edge_attributes = extract_attributes_from_stylesheet(stylesheet, "edge")
@@ -122,7 +125,8 @@ class AppHandler:
 
     def load_state(self):
         """Lädt den Zustand und aktualisiert den Session-State."""
-        self.state = load_json_from_filepath(self.filepath)
+        # Entferne die doppelte Zuweisung und stelle sicher, dass der korrekte Pfad verwendet wird
+        self.state = load_json_from_filepath(os.path.join(self.filepath, f"{self.project_name}.json") if self.project_name else self.filepath)
         st.session_state.state = self.state
 
     def save_state(self):

@@ -1,15 +1,19 @@
 import streamlit as st
+
+# 🔥 **set_page_config als allererste Streamlit-Funktion!**
+
+
+import os
 from core.app_handler import AppHandler
 from frontend.Sidebar import render_sidebar
-from config import UPLOADS_DIR, stylesheet, layout
+from config import stylesheet, layout
 from frontend.dashboard import render_dashboard
-from core.utils import logger, filepattern, render_file_selector, load_css
+#from core.utils import render_file_selector
+#from frontend.project_initializer import initialize_project
 
 
 
-
-
-def main():
+def main(filepath="/home/nileneb/mind/data", filepattern="*.json"):
     st.set_page_config(
         page_title="Mindmap Dashboard",
         page_icon="🧠",
@@ -20,29 +24,20 @@ def main():
             'About': "# MindUreMap!"
         }
     )
-    load_css()
-    #LLM Logik
-    #render_chat_window()
     
-    # appHandler/mindmap
-    selected_filepath = render_file_selector(filepattern)
-    if not selected_filepath:
-        st.stop()
+    project_name = None  # Initialize project_name
+
+    selected_folder = filepath  # Separate data directory
+    #selected_filepath = render_file_selector(filepattern)
+    #selected_folder = app_handler.filepath
+    # Entferne die folgende fehlerhafte Zeile
+    # selected_folder.name = project_name
+    #project_name = None
     
-    app_handler = AppHandler(filepath=UPLOADS_DIR, stylesheet=stylesheet, layout=layout)
+    app_handler = AppHandler(selected_folder, stylesheet, layout, project_name=project_name)  # Pass data_dir
     app_handler.load_state()
-     
-    st.title("Mindmap Dashboard")
     render_sidebar(app_handler)
     render_dashboard(app_handler)
-    
-    #render_folder_selection_sidebar(app_handler)
-    
-    
-    
 
 if __name__ == "__main__":
     main()
-
-
-#sudo systemctl start postgresql

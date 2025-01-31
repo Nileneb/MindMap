@@ -9,9 +9,11 @@ from core.utils import logger
 from core.app_handler import AppHandler
 from frontend.Sidebar import show_mindmap, show_charts, show_files, show_preview, show_chat
 from agent.llm_rag import ChatLLM
-from config import UPLOADS_DIR
+
 
 chat_llm = ChatLLM()
+#input_folder = UPLOADS_DIR
+#output_folder = UPLOADS_DIR
 
 def render_dashboard(app_handler):
     elements = st.session_state.get("cytoscape_update", app_handler.get_elements())
@@ -20,13 +22,16 @@ def render_dashboard(app_handler):
     show_charts = st.session_state.get("show_charts", True)
     show_files = st.session_state.get("show_files", True)
     show_preview = st.session_state.get("show_preview", True)
-
+    output_folder = app_handler.filepath  # Ensure this is correct
+    input_folder = app_handler.filepath   # Ensure this is correct
     # 🎯 **Dashboard Layout**
     header_col1, header_col2 = st.columns([3, 2])
     main_col1, main_col2 = st.columns([3, 2])
     footer_col1, footer_col2 = st.columns([1, 1])
 
-    if show_mindmap:
+    show_mindmap_flag = st.session_state.get("show_mindmap", True)
+    
+    if show_mindmap_flag:
         with main_col1:
             st.subheader("🌍 Mindmap")
             selected_elements = cytoscape(
@@ -48,9 +53,8 @@ def render_dashboard(app_handler):
         with main_col2:
             st.subheader("📂 Dateien durchsuchen")
             try:
-                #filepath = "filepath"  # Replace with your default path or environment variable name
-                event = st_file_browser(path=UPLOADS_DIR, key="A", show_choose_folder=True, use_static_file_server=True)
-                selected_file = event.get("selected_file", None)
+                event = st_file_browser(path=app_handler.filepath, key="A", show_choose_folder=True, use_static_file_server=True)
+                selected_file = st.session_state.get("selected_elements", {"nodes": [], "edges": []})
             except Exception as e:
                 logger.error(f"❌ Fehler beim Dateibrowser: {e}")
 
@@ -64,7 +68,7 @@ def render_dashboard(app_handler):
                     with open(selected_file, "r") as f:
                         preview_text = f.read()
                 except Exception as e:
-                    preview_text = f"Fehler beim Lesen der Datei: {e}"
+                    preview_text = f"Fehler beim Lesen der Datei: {e}";
             st.text_area("Inhalt der Datei", preview_text)
 
     # 📊 **Matplotlib-Graphen**

@@ -2,14 +2,14 @@ import logging
 import os
 from datetime import datetime
 
-#loader
+# loader
 import glob
 # Pfad für JSON-Dateien
-from config import MINDMAPS_DIR
+
 import streamlit as st
 
-
-filepattern = os.path.join(MINDMAPS_DIR, "*.json")
+#BASE_DIR = "data"  # Beispiel für Basisverzeichnis
+#filepattern = os.path.join(BASE_DIR, "*.json")
 
 log_dir = "logs"  # Could also pull from config.py if you prefer
 if not os.path.exists(log_dir):
@@ -27,24 +27,6 @@ if not logging.getLogger().hasHandlers():
 
 logger = logging.getLogger(__name__)
 
-
-
-def render_file_selector(filepattern):
-    """Listet alle JSON-Dateien auf und gibt die Auswahl zurück."""
-    # Alle Dateien suchen
-    json_files = glob.glob(filepattern)
-    if not json_files:
-        st.error("Keine JSON-Dateien gefunden!")
-        return None
-
-    # Nur Dateinamen für Dropdown anzeigen
-    filenames = [os.path.basename(file) for file in json_files]
-    
-    # Dropdown-Menü für die Auswahl
-    selected_file = st.selectbox("Verfügbare JSON-Dateien:", filenames)
-    full_path = os.path.join(os.path.dirname(filepattern), selected_file)
-    st.success(f"Ausgewählte Datei: {full_path}")
-    return full_path
 
 
 def load_css():

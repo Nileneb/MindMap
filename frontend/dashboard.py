@@ -1,32 +1,27 @@
 import streamlit as st
-import st_cytoscape
-from st_cytoscape import cytoscape
-import matplotlib.pyplot as plt
 from streamlit_file_browser import st_file_browser
-import json
-import os
 from core.utils import logger
-from core.app_handler import AppHandler
-from frontend.Sidebar import show_mindmap, show_charts, show_files, show_preview, show_chat
 from agent.llm_rag import ChatLLM
 from st_pages import add_page_title, get_nav_from_toml
-# Jupyter
+
 
 
 chat_llm = ChatLLM()
 
 
+
+
 def render_dashboard(app_handler):
-    nav = get_nav_from_toml("pages.toml")
-    pg = st.navigation(nav)
-    add_page_title(pg)
+    st.header("Respond 1")
+    st.write(f"You are logged in as {st.session_state.role}.")
+    
     elements = st.session_state.get("cytoscape_update", app_handler.get_elements())
     
     show_mindmap = st.session_state.get("show_mindmap", True)
     show_charts = st.session_state.get("show_charts", True)
-    show_files = st.session_state.get("show_files", True)
-    show_preview = st.session_state.get("show_preview", True)
-    output_folder = app_handler.filepath  # Ensure this is correct
+    show_files = st.session_state.get("show_files", False)
+    #show_preview = st.session_state.get("show_preview", True)
+    #output_folder = app_handler.filepath  # Ensure this is correct
     input_folder = app_handler.filepath   # Ensure this is correct
     # 🎯 **Dashboard Layout**
     header_col1, header_col2 = st.columns([3, 2])
@@ -54,5 +49,5 @@ def render_dashboard(app_handler):
             st.sidebar.write("JupyterLab gestartet...")
 
     
-    pg.run()
+
 

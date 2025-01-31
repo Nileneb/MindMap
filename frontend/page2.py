@@ -9,10 +9,13 @@ from agent.llm_rag import ChatLLM
 
 chat_llm = ChatLLM()
 
+st.header("Respond 1")
+st.write(f"You are logged in as {st.session_state.role}.")
+
+
+
 def render_page2(app_handler):
-    nav = get_nav_from_toml("pages.toml")
-    pg = st.navigation(nav)
-    add_page_title(pg)
+    
     
     elements = st.session_state.get("cytoscape_update", app_handler.get_elements())
 
@@ -20,6 +23,7 @@ def render_page2(app_handler):
     show_charts = st.session_state.get("show_charts", True)
     show_files = st.session_state.get("show_files", False)
     show_preview = st.session_state.get("show_preview", False)
+    show_chat = st.session_state.get("show_chat", True)
     #output_folder = app_handler.filepath  # Ensure this is correct
     #input_folder = app_handler.filepath   # Ensure this is correct
     # 🎯 **Dashboard Layout**
@@ -89,4 +93,3 @@ def render_page2(app_handler):
     
     
     
-    pg.run()

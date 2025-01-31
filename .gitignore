@@ -25,3 +25,5 @@ dist/
 
 # LogFolder 
 /logs
+
+streamlit-file-browser

@@ -6,5 +6,39 @@ icon = "🏠"
 [[pages]]
 path = "frontend/page2.py"
 name = "Page 2"
-icon = ":books:"
+icon = "📚"
 url_path = "my_books"
+
+[[pages]]
+path = "frontend/login.py"
+name = "Login"
+icon = "🔒"
+
+[[pages]]
+path = "frontend/register.py"
+name = "Register"
+icon = "🔑"
+
+[[pages]]
+path = "frontend/logout.py"
+name = "Logout"
+icon = "🚪"
+
+[[pages]]
+path = "admin/admin.py"
+name = "Admin"
+icon = "🔧"
+
+[[pages]]
+path = "admin/admin2.py"
+name = "Admin 2"
+icon = "🔧"
+
+[[pages]]
+path = "frontend/user.py"
+name = "Your Profile"
+icon = "👤"
+
+[client]
+showSidebarNavigation = false
+showTopNavigation = true

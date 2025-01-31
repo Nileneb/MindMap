@@ -4,6 +4,8 @@ import streamlit as st
 from core.utils import logger
 
 
+ROLES = [None, "Requester", "Responder", "Admin"]
+
 @st.cache_data
 def load_json_from_filepath(filepath):
     """Lädt JSON-Daten aus einer Datei."""
@@ -36,12 +38,13 @@ def extract_attributes_from_stylesheet(stylesheet, selector):
 
 
 class AppHandler:
-    def __init__(self, filepath, stylesheet, layout, project_name):
+    def __init__(self, filepath, stylesheet, layout, project_name, role=None):
         if not os.path.isdir(filepath):
             raise ValueError(f"❌ Der Pfad {filepath} ist kein gültiges Verzeichnis.")
         self.filepath = filepath
         self.stylesheet = stylesheet
         self.layout = layout
+        self.role = role
         self.project_name = project_name
         self.state = {"nodes": [], "edges": []}
         self.node_attributes = extract_attributes_from_stylesheet(stylesheet, "node")
@@ -177,6 +180,10 @@ class AppHandler:
         # Initialize conversation in session state
         if "conversation" not in st.session_state:
             st.session_state.conversation = []
+
+        # Initialize role in session state
+        if "role" not in st.session_state:
+            st.session_state.role = None
 
     # Parsing-Helfer
     def save_tree_to_json(self, tree):

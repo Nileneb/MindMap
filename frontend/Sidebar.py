@@ -17,15 +17,15 @@ from agent.index_creator import create_document_index
 show_mindmap = True
 show_charts = True
 show_files = True
-show_preview = True
+# show_preview = True
 show_chat = True
 
 faiss_index_path = FAISS_INDEX_DIR
-#input_folder = st.text_input("📁 Input-Ordner:", value=MINDMAPS_DIR, placeholder="Pfad zum Ordner eingeben")
-#output_folder = MINDMAPS_DIR  # Immer der Mindmap-Ordner
+
 
 
 def render_sidebar(app_handler):
+    
     st.sidebar.title("Mindmap Einstellungen")
     selected_elements = app_handler.get_selected_elements()
     selected_nodes = selected_elements.get("nodes", [])
@@ -75,7 +75,9 @@ def render_sidebar(app_handler):
                 st.sidebar.error(str(e))
             except Exception as e:
                 st.sidebar.error(f"❌ Fehler: {e}")
-
+            project_name = os.path.basename(os.path.normpath(filepath))
+            st.text_input("Projekt Name:", value=project_name, key="project_name")
+            filepath = st.sidebar.text_input("Choose a folder", value=filepath)
 
     ### 🛠 **Node- & Edge-Bearbeitung**
     st.sidebar.subheader("🔧 Knoten bearbeiten:")
@@ -128,3 +130,9 @@ def render_sidebar(app_handler):
     st.session_state["show_preview"] = st.sidebar.checkbox("📝 Datei Vorschau", value=st.session_state.get("show_preview", True))
     st.session_state["show_chat"] = st.sidebar.checkbox("💬 Chat", value=st.session_state.get("show_chat", True))
 
+    # Automatically set project name based on folder name
+    #with st.sidebar.form("📂 **Project Name**"):
+     #   project_name = os.path.basename(os.path.normpath(filepath))
+      #  st.text_input("Projekt Name:", value=project_name, key="project_name")
+       # filepath = st.sidebar.text_input("Choose a folder", value=filepath)
+        #st.form_submit_button("Save")

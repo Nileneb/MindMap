@@ -9,7 +9,7 @@ from config import FILE_EXTENSIONS, MINDMAP_SCHEMA
 
 #input_folder = os.path.join("data", "uploads")
 #output_folder = UPLOADS_DIR
-FAISS_INDEX_DIR = "faiss_index"  # Changed from "/faiss_index" to "faiss_index"
+#FAISS_INDEX_DIR = "faiss_index"  # Changed from "/faiss_index" to "faiss_index"
 
 def parse_folder_to_tree(folder_path: str) -> dict:
     """Erstellt eine hierarchische Mindmap mit FAISS-Index für Inhalte."""
@@ -20,7 +20,7 @@ def parse_folder_to_tree(folder_path: str) -> dict:
         raise ValueError(f"❌ Ungültiger Ordner: {folder_path}")
 
     nodes, edges, node_ids = [], [], set()
-    faiss_index_paths = FAISS_INDEX_DIR
+    #faiss_index_paths = FAISS_INDEX_DIR
     faiss_index_paths = {}
 
     # CHUNK 1: Ordner als Hauptknoten indexieren
@@ -72,8 +72,11 @@ def parse_folder_to_tree(folder_path: str) -> dict:
             })
 
             # CHUNK 3: Datei-Inhalt vektorisieren und als FAISS-Index speichern
-            if file_ext in FILE_EXTENSIONS:  #NO-color
-                faiss_path = create_document_index(folder_path, file_name)
+            if file_ext in FILE_EXTENSIONS:
+                faiss_path = create_document_index(
+                    uploaded_file=file_name,
+                    output_folder=folder_path
+                )
                 if faiss_path:
                     faiss_index_paths[file_id] = faiss_path
 

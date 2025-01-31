@@ -1,0 +1,10 @@
+[[pages]]
+path = "frontend/dashboard.py"
+name = "Home"
+icon = "🏠"
+
+[[pages]]
+path = "frontend/page2.py"
+name = "Page 2"
+icon = ":books:"
+url_path = "my_books"

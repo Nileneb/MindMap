@@ -9,11 +9,12 @@ from frontend.Sidebar import render_sidebar
 from config import stylesheet, layout
 from frontend.dashboard import render_dashboard
 #from core.utils import render_file_selector
-#from frontend.project_initializer import initialize_project
+import streamlit as st
+from st_pages import add_page_title, get_nav_from_toml
 
+filepath = "/home/nileneb/mind/"
 
-
-def main(filepath="/home/nileneb/mind/data", filepattern="*.json"):
+def main(filepath=filepath, filepattern="*.json"):
     st.set_page_config(
         page_title="Mindmap Dashboard",
         page_icon="🧠",
@@ -24,20 +25,24 @@ def main(filepath="/home/nileneb/mind/data", filepattern="*.json"):
             'About': "# MindUreMap!"
         }
     )
+    # Replace file_uploader with text_input for folder path
     
-    project_name = None  # Initialize project_name
+    
+    # Automatically set project name based on folder name
+    with st.sidebar.form("📂 **Project Name**"):
+        project_name = os.path.basename(os.path.normpath(filepath))
+        st.text_input("Projekt Name:", value=project_name, key="project_name")
+        filepath = st.sidebar.text_input("Choose a folder", value=filepath)
+        st.form_submit_button("Save")
+    
+    
+    selected_folder = filepath 
 
-    selected_folder = filepath  # Separate data directory
-    #selected_filepath = render_file_selector(filepattern)
-    #selected_folder = app_handler.filepath
-    # Entferne die folgende fehlerhafte Zeile
-    # selected_folder.name = project_name
-    #project_name = None
     
     app_handler = AppHandler(selected_folder, stylesheet, layout, project_name=project_name)  # Pass data_dir
     app_handler.load_state()
     render_sidebar(app_handler)
     render_dashboard(app_handler)
-
+    
 if __name__ == "__main__":
     main()

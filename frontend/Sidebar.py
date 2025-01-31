@@ -10,8 +10,7 @@ from agent.index_creator import create_document_index
 
 # Style
 #from streamlit_extras.stylable_container import stylable_container
-# Jupyter
-from streamlit_extras.jupyterlite import jupyterlite
+
 
 
 # Module-Level Settings
@@ -66,16 +65,12 @@ def render_sidebar(app_handler):
             st.sidebar.error("❌ Bitte einen gültigen Ordnerpfad eingeben!")
         else:
             folder_name = os.path.basename(input_folder.rstrip(os.sep))
-
-            # 🔥 Fix: Output-Ordner MUSS ein Verzeichnis sein, nicht eine Datei!
-            #output_folder = MINDMAPS_DIR  # Immer direkt den korrekten Ordner setzen!
-        
-            output_file = (output_folder, (f"{folder_name}.json"))
+            output_file_path = os.path.join(output_folder, f"{folder_name}.json")
 
             try:
                 tree = parse_folder_to_tree(output_folder)
-                save_tree_to_json(tree, output_file=output_file.name)
-                st.sidebar.success(f"✅ JSON gespeichert: `{output_file}`")
+                save_tree_to_json(tree, output_file_path)
+                st.sidebar.success(f"✅ JSON gespeichert: `{output_file_path}`")
             except ValueError as e:
                 st.sidebar.error(str(e))
             except Exception as e:
@@ -133,6 +128,3 @@ def render_sidebar(app_handler):
     st.session_state["show_preview"] = st.sidebar.checkbox("📝 Datei Vorschau", value=st.session_state.get("show_preview", True))
     st.session_state["show_chat"] = st.sidebar.checkbox("💬 Chat", value=st.session_state.get("show_chat", True))
 
-    if st.sidebar.button("📜 JupyterLab öffnen"):
-        jupyterlite(800, 600)
-        st.sidebar.write("JupyterLab gestartet...")

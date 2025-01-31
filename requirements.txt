@@ -12,5 +12,6 @@ st_cytoscape
 sentence-transformers
 langchain_ollama
 streamlit
+st-pages
 streamlit-file-browser  #(git clone git@github.com:pragmatic-streamlit/streamlit-file-browser.git)
 #streamlit-scrollable-textbox

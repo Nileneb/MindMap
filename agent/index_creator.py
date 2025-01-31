@@ -8,7 +8,7 @@ from config import FILE_EXTENSIONS_LIST, FAISS_INDEX_DIR
 
 def create_document_index(apphandler=None, uploaded_file=None, output_folder=None):
     """Erstellt einen FAISS-Index aus allen Dokumenten in einem bestimmten Ordner."""
-    # project_name = apphandler.project_name
+    
     file_path = output_folder
     # ✅ **Alle relevanten Dateien sammeln**
     documents = []

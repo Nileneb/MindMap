@@ -1,16 +1,16 @@
 import streamlit as st
 import frontend
 import frontend.dashboard
-import frontend.login
+import pages.role.login
 import frontend.page2
-import frontend.register
+import pages.role.register
 import admin.admin
 import admin.admin2
-import settings
+import pages.personal.settings as settings
 import st_pages
 import streamlit as st
 from streamlit import session_state as st_session
-import frontend.user
+import pages.personal.user
 st.header("Settings")
 st.write(f"You are logged in as {st.session_state.role}.")
 
@@ -21,9 +21,9 @@ st.write(f"You are logged in as {st.session_state.role}.")
 def settings():
     st.write("Settings page")
 
-    account_pages = [frontend.logout, frontend.user]
-    request_pages = [frontend.login, frontend.register()]
-    respond_pages = [frontend.dashboard, frontend.page2]
+    account_pages = [settings, frontend.user]
+    request_pages = [pages.logout, pages.role.register()]
+    respond_pages = [pages.login, pages.home]
     admin_pages = [admin.admin, admin.admin2]
 
     page_dict = {}

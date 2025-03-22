@@ -1,10 +1,10 @@
 [[pages]]
-path = "frontend/dashboard.py"
+path = "pages/personal/home.py"
 name = "Home"
 icon = "🏠"
 
 [[pages]]
-path = "frontend/page2.py"
+path = "pages/personal/settings.py"
 name = "Page 2"
 icon = "📚"
 url_path = "my_books"
